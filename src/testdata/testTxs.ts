@@ -1,9 +1,4 @@
-import { Bank } from './types.ts';
-
-export const headers = {
-    dnb: '"Dato";"Forklaring";"Rentedato";"Ut fra konto";"Inn på konto"',
-    valle: 'Betalingstidspunkt;Bokført dato;Valuteringsdato;Skildring;Type;Undertype;Frå konto;Avsendar;Til konto;Mottakarnamn;Beløp inn;Beløp ut;Valuta;Status;Melding/KID/Fakt.nr;eFaktura;eFaktura eier;eFaktura type;Melding;KID;Faktura nr.',
-};
+import { Bank } from '@/parse/csv.ts';
 
 export const testStrings: { tx: string; bank: Bank }[] = [
     {

@@ -4,6 +4,8 @@
     },
     "imports": {
         "@std/assert": "jsr:@std/assert@1",
-        "@std/csv": "jsr:@std/csv@^1.0.0"
+        "@std/csv": "jsr:@std/csv@^1.0.0",
+        "date-fns": "npm:date-fns@^4.1.0",
+        "@/": "./src/"
     }
 }
