@@ -1,1 +1,4 @@
 /deno.lock
+/src/testdata/dnb_k.txt
+/src/testdata/dnb_s.txt
+/src/testdata/valle.csv

@@ -18,8 +18,17 @@ export const cleanDescription = (desc: string) =>
         .replace(/\s*Valutakurs:\s*[\d,]+/, '')
         .trim();
 
-export const getDate = (row: CsvRow, fields: BankFields) =>
-    format(parseDate(row[fields.date], 'dd.MM.yyyy', new Date()), 'yyyy-MM-dd');
+export const getDate = (row: CsvRow, fields: BankFields) => {
+    const dateStr = row[fields.date];
+    if (!dateStr) return '';
+    const parsed = parseDate(dateStr, 'dd.MM.yyyy', new Date());
+
+    if (isNaN(parsed.getTime())) {
+        console.log('Bad date:', dateStr);
+        return '';
+    }
+    return format(parsed, 'yyyy-MM-dd');
+};
 
 export const getDescription = (row: CsvRow, fields: BankFields, bank: Bank) => {
     if (bank === 'valle') return cleanDescription(row[fields.description]);

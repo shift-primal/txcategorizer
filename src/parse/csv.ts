@@ -45,7 +45,7 @@ const fieldMap: FieldMap = {
         description: 'Skildring',
         incoming: 'Beløp inn',
         outgoing: 'Beløp ut',
-        type: 'Type',
+        type: 'Undertype',
     },
 };
 
@@ -67,7 +67,12 @@ export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTr
 
 export function parseCsvString(content: string, bank: Bank): RawTransaction[] {
     const fields = fieldMap[bank];
-    const rows = parseCsv(content, { skipFirstRow: true, separator: ';' });
+
+    // Filter: for skipping last two rows (summary) (only valle)
+    const rows = parseCsv(content, { skipFirstRow: true, separator: ';' }).filter((row) =>
+        /^\d{2}\.\d{2}\.\d{4}$/.test(row[fieldMap[bank].date]),
+    );
+
     return rows.map((row) => ({
         date: getDate(row, fields),
         description: getDescription(row, fields, bank),

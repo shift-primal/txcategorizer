@@ -6,8 +6,8 @@ import { parseFullFile } from './parse/csv.ts';
 // console.log('Parsed lines: ', parsed);
 // console.log('Extracted merchants: ', extractedMerchants);
 
-const filePath = '';
+const filePath = './testdata/valle.csv';
 
-const txs = await parseFullFile(filePath, 'dnb');
+const txs = await parseFullFile(filePath, 'valle');
 const extracted = extractMerchants(txs);
-console.log(extracted);
+console.log(extracted.slice(100, 200));
