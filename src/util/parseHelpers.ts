@@ -1,11 +1,15 @@
-import { Bank, BankFields, CsvRow } from '../parse/csv.ts';
+import { BankFields, CsvRow } from '@/parse/csv.ts';
+import { Bank } from '@/types.ts';
 import { format, parse as parseDate } from 'date-fns';
 
-export const getCurrency = (desc: string) => {
+export const getCurrency = (row: CsvRow, fields: BankFields, bank: Bank) => {
+    const desc = bank === 'valle' ? row[fields.currency!] : row[fields.description];
     const currency = desc.match(/\b(Nok|Eur|Usd|Gbp|Dkk|Sek)\b/i)?.[1].toUpperCase() ?? 'NOK';
     const exchangeRate = parseFloat(
-        desc.match(/Valutakurs:\s*([\d,]+)/)?.[1].replace(',', '.') ?? '1',
+        desc.match(/(?:Valutakurs|Kurs):\s*([\d,.]+)/)?.[1].replace(',', '.') ?? '1',
     );
+
+    console.log(currency, exchangeRate);
 
     return { currency, exchangeRate };
 };
@@ -20,13 +24,13 @@ export const cleanDescription = (desc: string) =>
 
 export const getDate = (row: CsvRow, fields: BankFields) => {
     const dateStr = row[fields.date];
+
     if (!dateStr) return '';
+
     const parsed = parseDate(dateStr, 'dd.MM.yyyy', new Date());
 
-    if (isNaN(parsed.getTime())) {
-        console.log('Bad date:', dateStr);
-        return '';
-    }
+    if (isNaN(parsed.getTime())) return '';
+
     return format(parsed, 'yyyy-MM-dd');
 };
 

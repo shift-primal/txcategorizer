@@ -1,6 +1,6 @@
-import { RawTransaction } from '../parse/csv.ts';
-import { capFirstChar } from '../util/extractHelpers.ts';
+import { capFirstChar } from '@/util/extractHelpers.ts';
 import { merchantRules as rules, merchantDict as nmDict } from './rules.ts';
+import { RawTransaction } from '@/types.ts';
 
 export function extractMerchants(txs: RawTransaction[]) {
     return txs.map((tx) => {

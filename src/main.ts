@@ -10,4 +10,3 @@ const filePath = './testdata/valle.csv';
 
 const txs = await parseFullFile(filePath, 'valle');
 const extracted = extractMerchants(txs);
-console.log(extracted.slice(100, 200));

@@ -1,5 +1,5 @@
-import { RawTransaction } from '../parse/csv.ts';
-import { capFirstChar } from '../util/extractHelpers.ts';
+import { RawTransaction } from '@/types.ts';
+import { capFirstChar } from '@/util/extractHelpers.ts';
 
 const DEBUG = true;
 

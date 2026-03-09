@@ -1,19 +1,7 @@
 import { parse as parseCsv } from '@std/csv';
 import { getDate, getDescription, getAmt, getType, getCurrency } from '@/util/parseHelpers.ts';
 import { readFile } from '@/io/readfile.ts';
-
-export type RawTransaction = {
-    date: string;
-    description: string;
-    amount: number;
-    type?: string; // Valle only
-    subtype?: string; // Valle only
-    currency: string; // default 'NOK'
-    exchangeRate: number; // default 0
-    counterparty?: string;
-};
-
-export type Bank = 'dnb' | 'valle';
+import { Bank, RawTransaction } from '@/types.ts';
 
 type FieldMap = Record<Bank, BankFields>;
 
@@ -25,6 +13,7 @@ export type BankFields = {
     incoming: string;
     outgoing: string;
     type: string | undefined;
+    currency: string | undefined;
 };
 
 const headers = {
@@ -39,6 +28,7 @@ const fieldMap: FieldMap = {
         incoming: 'Inn på konto',
         outgoing: 'Ut fra konto',
         type: undefined,
+        currency: undefined,
     },
     valle: {
         date: 'Betalingstidspunkt',
@@ -46,6 +36,7 @@ const fieldMap: FieldMap = {
         incoming: 'Beløp inn',
         outgoing: 'Beløp ut',
         type: 'Undertype',
+        currency: 'Melding/KID/Fakt.nr',
     },
 };
 
@@ -61,7 +52,7 @@ export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTr
         description: getDescription(row, fields, bank),
         amount: getAmt(row, fields, bank),
         type: getType(row, fields, bank),
-        ...getCurrency(row[fields.description]),
+        ...getCurrency(row, fields, bank),
     };
 }
 
@@ -78,7 +69,7 @@ export function parseCsvString(content: string, bank: Bank): RawTransaction[] {
         description: getDescription(row, fields, bank),
         amount: getAmt(row, fields, bank),
         type: getType(row, fields, bank),
-        ...getCurrency(row[fields.description]),
+        ...getCurrency(row, fields, bank),
     }));
 }
 
