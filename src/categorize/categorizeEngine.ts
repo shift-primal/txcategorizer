@@ -1,5 +1,5 @@
-import { ExtractedTransaction, FinalTransaction } from '@/types.ts';
-import { categoryDict } from './categoryRules.ts';
+import { ExtractedTransaction, FinalTransaction } from '../types.js';
+import { categoryDict } from './categoryRules.js';
 
 const CATEGORIES = [
     'Dagligvare',
@@ -28,9 +28,9 @@ export type Category = (typeof CATEGORIES)[number];
 
 export function categorizeTransactions(txs: ExtractedTransaction[]): FinalTransaction[] {
     return txs.map((t) => {
-        const m = t.merchant.toLowerCase();
+        const m = `${t.merchant} ${t.counterparty ?? ''}`.toLowerCase();
         let category: Category = 'Annet';
-        for (const [keyword, cat] of Object.entries(categoryDict)) {
+        for (const [keyword, cat] of categoryDict) {
             if (m.includes(keyword)) {
                 category = cat;
                 break;

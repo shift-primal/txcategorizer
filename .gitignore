@@ -1,4 +1,13 @@
-/deno.lock
-/src/testdata/dnb_k.txt
-/src/testdata/dnb_s.txt
-/src/testdata/valle.csv
+# Deno
+deno.lock
+
+# Node
+node_modules/
+dist/
+
+# Test data (contains personal bank data)
+src/testdata/
+
+# Env
+.env
+*.local

@@ -1,7 +1,6 @@
-import { parse as parseCsv } from '@std/csv';
-import { getDate, getDescription, getAmt, getType, getCurrency } from '@/util/parseHelpers.ts';
-import { denoReadFile } from '@/io/readfile.ts';
-import { Bank, RawTransaction } from '@/types.ts';
+import Papa from 'papaparse';
+import { getDate, getDescription, getAmt, getType, getCurrency } from '../util/parseHelpers.js';
+import { Bank, RawTransaction } from '../types.js';
 
 type FieldMap = Record<Bank, BankFields>;
 
@@ -43,12 +42,12 @@ const fieldMap: FieldMap = {
     },
 };
 
+const parse = (content: string): CsvRow[] =>
+    Papa.parse<CsvRow>(content, { header: true, delimiter: ';', skipEmptyLines: true }).data;
+
 export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTransaction {
     const fields = fieldMap[bank];
-    const row = parseCsv(headers[bank] + '\n' + tx, {
-        skipFirstRow: true,
-        separator: ';',
-    })[0];
+    const row = parse(headers[bank] + '\n' + tx)[0];
 
     return {
         date: getDate(row, fields),
@@ -62,8 +61,7 @@ export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTr
 export function parseCsvString(content: string, bank: Bank): RawTransaction[] {
     const fields = fieldMap[bank];
 
-    // Filter: for skipping last two rows (summary) (only valle)
-    const rows = parseCsv(content, { skipFirstRow: true, separator: ';' }).filter((row) =>
+    const rows = parse(content).filter((row) =>
         /^\d{2}\.\d{2}\.\d{4}$/.test(row[fieldMap[bank].date]),
     );
 
@@ -74,9 +72,4 @@ export function parseCsvString(content: string, bank: Bank): RawTransaction[] {
         type: getType(row, fields, bank),
         valuta: getCurrency(row, fields, bank),
     }));
-}
-
-export async function parseFullFile(filePath: string, bank: Bank): Promise<RawTransaction[]> {
-    const content = await denoReadFile(filePath, bank);
-    return parseCsvString(content, bank);
 }

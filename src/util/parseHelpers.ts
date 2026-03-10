@@ -1,7 +1,7 @@
-import { BankFields, CsvRow } from '@/parse/csv.ts';
-import { Bank, TransactionType } from '@/types.ts';
+import { BankFields, CsvRow } from '../parse/csv.js';
+import { Bank, TransactionType } from '../types.js';
 import { format, parse as parseDate } from 'date-fns';
-import { ownAccounts } from '@/config.ts';
+import { ownAccounts } from '../config.js';
 
 const typeMap: Record<string, TransactionType> = {
     'Varekjøp': 'Varekjøp',

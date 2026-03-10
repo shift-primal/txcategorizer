@@ -1,4 +1,4 @@
-import { Category } from './categorize/categorizeEngine.ts';
+import { Category } from './categorize/categorizeEngine.js';
 
 export type Bank = 'dnb' | 'valle';
 
@@ -33,7 +33,7 @@ export type ExtractedTransaction = {
     date: string;
     amount: number;
     merchant: string;
-    valuta: Valuta;
+    valuta?: Valuta;
     type?: TransactionType;
     counterparty?: string;
     raw?: string;

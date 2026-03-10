@@ -1,5 +1,5 @@
-import { RawTransaction } from '@/types.ts';
-import { capFirstChar } from '@/util/extractHelpers.ts';
+import { RawTransaction } from '../types\.js';
+import { capFirstChar } from '../util/extractHelpers\.js';
 
 const DEBUG = true;
 
@@ -53,6 +53,7 @@ const twoWordMerchants = [
     'Get',
     'Makeup',
     'Vero',
+    'Coop',
 
     // Byer
     'Gjøvik',
