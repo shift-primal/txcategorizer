@@ -1,12 +1,13 @@
-import { extractMerchants } from './extract/engine.ts';
-import { parseFullFile } from './parse/csv.ts';
+import { extractMerchants } from '@/extract/extractEngine.ts';
+import { categorizeTransactions } from '@/categorize/categorizeEngine.ts';
+import { parseFullFile } from '@/parse/csv.ts';
+import { Bank } from '@/types.ts';
 
-// const parsed = testStrings1.map((t) => parseSingleLine(t));
-// const extractedMerchants = extractMerchants(parsed);
-// console.log('Parsed lines: ', parsed);
-// console.log('Extracted merchants: ', extractedMerchants);
+const filePath = 'src/testdata/valle.csv';
 
-const filePath = './testdata/valle.csv';
+async function run(filePath: string, bank: Bank) {
+    const txs = categorizeTransactions(extractMerchants(await parseFullFile(filePath, bank)));
+    console.log(JSON.stringify(txs, null, 2));
+}
 
-const txs = await parseFullFile(filePath, 'valle');
-const extracted = extractMerchants(txs);
+run(filePath, 'valle');

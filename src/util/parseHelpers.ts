@@ -1,6 +1,28 @@
 import { BankFields, CsvRow } from '@/parse/csv.ts';
-import { Bank } from '@/types.ts';
+import { Bank, TransactionType } from '@/types.ts';
 import { format, parse as parseDate } from 'date-fns';
+import { ownAccounts } from '@/config.ts';
+
+const typeMap: Record<string, TransactionType> = {
+    'Varekjøp': 'Varekjøp',
+    'E-varekjøp': 'Varekjøp',
+    'Varekjøp debetkort': 'Varekjøp',
+    'Varekjøp ubetjent': 'Varekjøp',
+    'Varekjøp i utlandet': 'Varekjøp',
+    'Betaling innland': 'Betaling',
+    'Betaling med melding innland': 'Betaling',
+    'Betaling med KID innland': 'Giro',
+    'Giro': 'Giro',
+    'Overføring': 'Overføring',
+    'Straksbetaling': 'Overføring',
+    'Overføring til egen konto': 'Kontoregulering',
+    'Overføring fra egen konto': 'Kontoregulering',
+    'Overføring til annen konto': 'Betaling',
+    'Overføring fra annen konto': 'Overføring',
+    'Nedbetaling av lån': 'Nedbetaling',
+};
+
+const normalizeType = (raw: string): TransactionType => typeMap[raw] ?? (raw as TransactionType);
 
 export const getCurrency = (row: CsvRow, fields: BankFields, bank: Bank) => {
     const desc = bank === 'valle' ? row[fields.currency!] : row[fields.description];
@@ -9,13 +31,15 @@ export const getCurrency = (row: CsvRow, fields: BankFields, bank: Bank) => {
         desc.match(/(?:Valutakurs|Kurs):\s*([\d,.]+)/)?.[1].replace(',', '.') ?? '1',
     );
 
-    console.log(currency, exchangeRate);
-
     return { currency, exchangeRate };
 };
 
 export const cleanDescription = (desc: string) =>
     desc
+        .replace(
+            /^(E-varekj\u00f8p|Varekj\u00f8p i butikk|Varekj\u00f8p|Overf\u00f8ring Innland|Overf\u00f8ring Innlandet|Overf\u00f8ring|Visa|Giro|Kontoregulering|Renter|L\u00f8nn)\s+/i,
+            '',
+        )
         .replace(/^\d{2}\.\d{2}\s+/, '')
         .replace(/^\d+\s+/, '')
         .replace(/\b(Nok|Eur|Usd|Gbp|Dkk|Sek)\s+[\d,]+\s+/i, '')
@@ -34,17 +58,8 @@ export const getDate = (row: CsvRow, fields: BankFields) => {
     return format(parsed, 'yyyy-MM-dd');
 };
 
-export const getDescription = (row: CsvRow, fields: BankFields, bank: Bank) => {
-    if (bank === 'valle') return cleanDescription(row[fields.description]);
-
-    const desc = row[fields.description].split(/\s+/);
-    let sliceNum = 1;
-
-    if (desc[1] === 'Innland' || desc[1] === 'Innlandet') sliceNum = 2;
-    if (desc[1] === 'i') sliceNum = 3;
-
-    return cleanDescription(desc.slice(sliceNum).join(' '));
-};
+export const getDescription = (row: CsvRow, fields: BankFields) =>
+    cleanDescription(row[fields.description]);
 
 export const getAmt = (row: CsvRow, fields: BankFields, bank: Bank) => {
     const out = parseFloat(row[fields.outgoing]) || 0;
@@ -53,8 +68,10 @@ export const getAmt = (row: CsvRow, fields: BankFields, bank: Bank) => {
     return inc + (bank === 'dnb' ? -out : out);
 };
 
-export const getType = (row: CsvRow, fields: BankFields, bank: Bank) => {
-    if (bank === 'valle') return row[fields.type!] ?? '';
+export const getType = (row: CsvRow, fields: BankFields, bank: Bank): TransactionType => {
+    if (fields.toAccount && ownAccounts.includes(row[fields.toAccount])) return 'Kontoregulering';
 
-    return row[fields.description].split(/\s+/)[0];
+    if (bank === 'valle') return normalizeType(row[fields.type!]);
+
+    return normalizeType(row[fields.description].split(/\s+/)[0]);
 };

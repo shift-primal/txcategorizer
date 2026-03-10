@@ -1,18 +1,42 @@
+import { Category } from './categorize/categorizeEngine.ts';
+
 export type Bank = 'dnb' | 'valle';
+
+type Valuta = {
+    currency: string;
+    exchangeRate: number;
+};
+
+export type TransactionType =
+    | 'Varekjøp' // card purchase (in-store or online)
+    | 'Visa' // foreign/online card
+    | 'Betaling'
+    | 'Giro'
+    | 'Overføring' // transfers (including Straksbetaling)
+    | 'Lønn'
+    | 'Kontoregulering'
+    | 'Nedbetaling'
+    | 'Renter'
+    | 'Omkostninger'
+    | 'Annet';
 
 export type RawTransaction = {
     date: string;
     description: string;
     amount: number;
-    currency: string; // default 'NOK'
-    exchangeRate: number; // default 1
-    type?: string; // Valle only
+    valuta: Valuta;
+    type?: TransactionType;
     counterparty?: string;
 };
 
-export type FinalTransaction = {
+export type ExtractedTransaction = {
     date: string;
     amount: number;
     merchant: string;
-    category: string;
+    valuta: Valuta;
+    type?: TransactionType;
+    counterparty?: string;
+    raw?: string;
 };
+
+export type FinalTransaction = ExtractedTransaction & { category: Category };

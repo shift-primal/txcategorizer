@@ -9,6 +9,9 @@ export const merchantDict: Record<string, string> = {
     'extra': 'Coop Extra',
     'mdc': "McDonald's",
     'mcdonalds': "McDonald's",
+    'mcd': "McDonald's",
+    "mc donald's": "McDonald's",
+    'mc donald': "McDonald's",
     'lyko.com/no': 'Lyko',
     'apple.com/bill': 'Apple',
     'bk': 'Burger King',
@@ -18,42 +21,57 @@ export const merchantDict: Record<string, string> = {
     'rema': 'REMA 1000',
     'uno-x': 'Uno-X',
     'steamgames.com': 'Steam',
+    'clas ohl': 'Clas Ohlson',
 };
 
 const twoWordMerchants = [
+    // Prefixes
+    'Burger',
     'Mr',
     'New',
+    'The',
+    'King',
+    'Cc',
     'Supermarket',
     'Crown',
-    'Cc',
-    'King',
-    'Burger',
     'Caffe',
     'Cafe',
-    'Change',
     'Hotel',
     'Aashaug',
-    'The',
-    'Clas',
+    'Gina',
+    'Espresso',
+    'Apotek',
+    'Hage',
+    'Circle',
     'Sostrene',
     'Søstrene',
+    'Clas',
     'Liten',
+    'Øya',
+    'Euro',
+    'Barnas',
+    'Get',
+    'Makeup',
+    'Vero',
+
+    // Byer
+    'Gjøvik',
+    'Raufoss',
+    'Lena',
+    'Bøverbru',
+    'Kapp',
+    'Kolbu',
+    'Reinsvoll',
+
+    // Edgecases
+    'Bentes',
+    'EBILLETT',
+    'Mc',
     'Sp',
+    'Change',
 ];
 
-const varekjopTypes = [
-    'Varekjøp',
-    'E-varekjøp',
-    'Varekjøp debetkort',
-    'Varekjøp ubetjent',
-    'Varekjøp i utlandet',
-];
-
-const betalingTypes = [
-    'Betaling med KID innland',
-    'Betaling innland',
-    'Betaling med melding innland',
-];
+const threeWordMerchants = ['Salt'];
 
 type MerchantRule = {
     match: (tx: RawTransaction) => boolean;
@@ -74,16 +92,16 @@ export const merchantRules: MerchantRule[] = [
 
     // Overføring til egen konto (Valle)
     {
-        match: ({ type }) => type === 'Overføring til egen konto',
+        match: ({ type }) => type === 'Kontoregulering',
         extract: ({ description }) => ({
-            merchant: 'Overføring til egen konto',
+            merchant: 'Kontoregulering',
             ...raw(description),
         }),
     },
 
     {
         // Til konto: 2890 71 04208" → loan repayment (Valle)
-        match: ({ type }) => type === 'Nedbetaling av lån',
+        match: ({ type }) => type === 'Nedbetaling',
         extract: ({ description }) => ({
             merchant: 'Nedbetaling av lån',
             ...raw(description),
@@ -91,66 +109,8 @@ export const merchantRules: MerchantRule[] = [
     },
 
     {
-        // "Haakon Østfelt (12066464367)" → Overføring + counterparty (Valle)
-        match: ({ type }) => type === 'Straksbetaling',
-        extract: ({ description }) => ({
-            merchant: 'Overføring',
-            counterparty: description.replace(/\s*\(\d+\)/, '').trim(),
-            ...raw(description),
-        }),
-    },
-    {
-        // "Gjensidige Forsikring Asa (60050608460)" → merchant without account number (Valle)
-        match: ({ type }) => betalingTypes.some((t) => t === type),
-        extract: ({ description }) => ({
-            merchant: description.replace(/\s*\(\d+\)/, '').trim(),
-            ...raw(description),
-        }),
-    },
-
-    {
-        // "Lønn fra REMA 1000" → merchant: "REMA 1000"
-        match: ({ type }) => type === 'Lønn',
-        extract: ({ description }) => ({
-            merchant: `Lønn: ${description.replace('Lønn fra ', '')}`,
-            ...raw(description),
-        }),
-    },
-    {
-        // "VERISURE AS (17105829310)" → merchant: "VERISURE AS"
-        match: ({ type }) => betalingTypes.some((t) => t === type),
-        extract: ({ description }) => ({
-            merchant: description.replace(/\s*\(\d+\)/, '').trim(),
-            ...raw(description),
-        }),
-    },
-    {
-        // "800 Blommer" → merchant: "Kontoregulering", counterparty: "Blommer"
-        match: ({ type }) => type === 'Kontoregulering',
-        extract: ({ description }) => ({
-            merchant: 'Kontoregulering',
-            counterparty: description.split(/\s+/).slice(0, 2).join(' '),
-            ...raw(description),
-        }),
-    },
-    {
-        // "Telenor Norge As, Mobil Efaktura" → merchant: "Telenor"
-        match: ({ type }) => type === 'Giro',
-        extract: ({ description }) => {
-            if (description.includes('Efaktura')) {
-                return {
-                    merchant: description.split('Efaktura')[0].trim(),
-                    ...raw(description),
-                };
-            }
-            return {
-                merchant: description.split(/\s+/).slice(0, 2).join(' '),
-                ...raw(description),
-            };
-        },
-    },
-    {
-        // "Eline Julianne Linde Bommer Pizza" → merchant: "Overføring", counterparty: "Eline Julianne"
+        // "Haakon Østfelt (12066464367)" → Overføring + counterparty
+        // "Tpp: jan-fredrik" → Vipps
         match: ({ type }) => type === 'Overføring',
         extract: ({ description }) => {
             if (description.includes('Tpp:')) {
@@ -162,9 +122,53 @@ export const merchantRules: MerchantRule[] = [
             }
             return {
                 merchant: 'Overføring',
-                counterparty: description.split(/\s+/).slice(0, 2).join(' '),
+                counterparty: description.replace(/\s*\(\d+\)/, '').trim(),
                 ...raw(description),
             };
+        },
+    },
+
+    {
+        // "Lønn fra REMA 1000" → merchant: "REMA 1000"
+
+        match: ({ type }) => type === 'Lønn',
+        extract: ({ description }) => ({
+            merchant: `Lønn: ${description.replace(/^(L\u00f8nn\s*)?(fra\s*)?/i, '').trim()}`,
+            ...raw(description),
+        }),
+    },
+
+    {
+        // "Telenor Norge As, Mobil Efaktura" / "Nordea Finans (60060524559)" → strip account nr, split on Efaktura
+        match: ({ type }) => type === 'Giro',
+        extract: ({ description }) => {
+            const cleaned = description.replace(/\s*\(\d{11,}\)/, '').trim();
+            if (cleaned.includes('Efaktura')) {
+                return {
+                    merchant: cleaned
+                        .split('Efaktura')[0]
+                        .replace(/[,\s]+$/, '')
+                        .trim(),
+                    ...raw(description),
+                };
+            }
+            return { merchant: cleaned, ...raw(description) };
+        },
+    },
+
+    {
+        // "Sofie Krukhaug Linde (12069003239)" → merchant: "Betaling", counterparty: "Sofie Krukhaug Linde"
+        // "Verisure As (17105829310)" → merchant: "Verisure As"
+        match: ({ type }) => type === 'Betaling',
+        extract: ({ description }) => {
+            const cleaned = description.replace(/\s*\(\d{11,}\)/, '').trim();
+            const words = cleaned.split(/\s+/);
+            const businessSuffixes = /\b(as|asa|sa|ab|ltd|gmbh)\b/i;
+            const looksLikePerson = words.length >= 3 && !businessSuffixes.test(cleaned);
+            if (looksLikePerson) {
+                return { merchant: 'Betaling', counterparty: cleaned, ...raw(description) };
+            }
+            return { merchant: cleaned, ...raw(description) };
         },
     },
 
@@ -187,12 +191,12 @@ export const merchantRules: MerchantRule[] = [
             };
         },
     },
+
     {
         // "Paypal :discord" → merchant: "Paypal", counterparty: "discord"
-        match: ({ type, description }) =>
-            ((description.includes('Paypal') || description.includes('Klarna')) &&
-                description.includes(':')) ||
-            type === 'Visa',
+        match: ({ description }) =>
+            (description.includes('Paypal') || description.includes('Klarna')) &&
+            description.includes(':'),
         extract: ({ description }) => ({
             merchant: description.split(':')[0].trim(),
             counterparty: capFirstChar(description.split(':')[1]?.trim() ?? ''),
@@ -203,10 +207,21 @@ export const merchantRules: MerchantRule[] = [
     {
         // "Supermarket Lucija", "Mr Vape Saloon", "New Yorker Croatia" → first 2 words
         match: ({ type, description }) =>
-            (varekjopTypes.some((t) => type === t) || type === 'Visa') &&
+            type === 'Varekjøp' &&
             twoWordMerchants.some((w) => description.toLowerCase().startsWith(w.toLowerCase())),
         extract: ({ description }) => ({
             merchant: description.split(/\s+/).slice(0, 2).join(' '),
+            ...raw(description),
+        }),
+    },
+
+    {
+        // "Salt And Battery London" → first 3 words
+        match: ({ type, description }) =>
+            type === 'Varekjøp' &&
+            threeWordMerchants.some((w) => description.toLowerCase().startsWith(w.toLowerCase())),
+        extract: ({ description }) => ({
+            merchant: description.split(/\s+/).slice(0, 3).join(' '),
             ...raw(description),
         }),
     },
@@ -233,8 +248,7 @@ export const merchantRules: MerchantRule[] = [
 
     {
         // "Vipps*Uno-X" → merchant: "Uno-X"
-        match: ({ type, description }) =>
-            varekjopTypes.some((t) => type === t) && description.startsWith('Vipps*'),
+        match: ({ type, description }) => type === 'Varekjøp' && description.startsWith('Vipps*'),
         extract: ({ description }) => ({
             merchant: description.split('Vipps*')[1].trim(),
             ...raw(description),
@@ -244,7 +258,7 @@ export const merchantRules: MerchantRule[] = [
     {
         // "Extra Tveita Se Tvetenveien Oslo Dato..." → merchant: "Extra"
         // "KIWI 012 RAUFOS STORGATA 68 RAUFOSS" → merchant: "KIWI"
-        match: ({ type }) => varekjopTypes.some((t) => type === t),
+        match: ({ type }) => type === 'Varekjøp',
         extract: ({ description }) => ({
             merchant: description.split(/\s+/)[0],
             ...raw(description),

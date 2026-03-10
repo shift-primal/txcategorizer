@@ -1,6 +1,6 @@
 import { parse as parseCsv } from '@std/csv';
 import { getDate, getDescription, getAmt, getType, getCurrency } from '@/util/parseHelpers.ts';
-import { readFile } from '@/io/readfile.ts';
+import { denoReadFile } from '@/io/readfile.ts';
 import { Bank, RawTransaction } from '@/types.ts';
 
 type FieldMap = Record<Bank, BankFields>;
@@ -14,6 +14,7 @@ export type BankFields = {
     outgoing: string;
     type: string | undefined;
     currency: string | undefined;
+    toAccount: string | undefined;
 };
 
 const headers = {
@@ -29,6 +30,7 @@ const fieldMap: FieldMap = {
         outgoing: 'Ut fra konto',
         type: undefined,
         currency: undefined,
+        toAccount: undefined,
     },
     valle: {
         date: 'Betalingstidspunkt',
@@ -37,6 +39,7 @@ const fieldMap: FieldMap = {
         outgoing: 'Beløp ut',
         type: 'Undertype',
         currency: 'Melding/KID/Fakt.nr',
+        toAccount: 'Til konto',
     },
 };
 
@@ -49,10 +52,10 @@ export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTr
 
     return {
         date: getDate(row, fields),
-        description: getDescription(row, fields, bank),
+        description: getDescription(row, fields),
         amount: getAmt(row, fields, bank),
         type: getType(row, fields, bank),
-        ...getCurrency(row, fields, bank),
+        valuta: getCurrency(row, fields, bank),
     };
 }
 
@@ -66,14 +69,14 @@ export function parseCsvString(content: string, bank: Bank): RawTransaction[] {
 
     return rows.map((row) => ({
         date: getDate(row, fields),
-        description: getDescription(row, fields, bank),
+        description: getDescription(row, fields),
         amount: getAmt(row, fields, bank),
         type: getType(row, fields, bank),
-        ...getCurrency(row, fields, bank),
+        valuta: getCurrency(row, fields, bank),
     }));
 }
 
 export async function parseFullFile(filePath: string, bank: Bank): Promise<RawTransaction[]> {
-    const content = await readFile(filePath, bank);
+    const content = await denoReadFile(filePath, bank);
     return parseCsvString(content, bank);
 }
