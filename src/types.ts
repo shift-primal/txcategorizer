@@ -1,10 +1,23 @@
-import { Category } from './categorize/categorizeEngine.js';
+import { Category } from './categories.js';
+import type { MerchantRule } from './extract/extractRules.js';
 
 export type Bank = 'dnb' | 'valle';
 
 type Valuta = {
     currency: string;
     exchangeRate: number;
+};
+
+export type CategoryKeywords = Record<Category, string[]>;
+export type MerchantAliases = Record<string, string>;
+
+export type Options = {
+    merchantAliases?: Record<string, string>;
+    categoryKeywords?: Partial<Record<Category, string[]>>;
+    ownAccounts?: string[];
+    locale?: Intl.Locale;
+    debug?: boolean;
+    extractionRules?: MerchantRule[];
 };
 
 export type TransactionType =

@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { getDate, getDescription, getAmt, getType, getCurrency } from '../util/parseHelpers.js';
+import { getDate, getDescription, getAmt, getType, getCurrency } from './parseHelpers.js';
 import { Bank, RawTransaction } from '../types.js';
 
 type FieldMap = Record<Bank, BankFields>;
@@ -58,18 +58,37 @@ export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTr
     };
 }
 
-export function parseCsvString(content: string, bank: Bank): RawTransaction[] {
+export function parseCsvString(
+    content: string,
+    bank: Bank,
+    ownAccounts: string[],
+): RawTransaction[] {
     const fields = fieldMap[bank];
 
     const rows = parse(content).filter((row) =>
         /^\d{2}\.\d{2}\.\d{4}$/.test(row[fieldMap[bank].date]),
     );
 
-    return rows.map((row) => ({
-        date: getDate(row, fields),
-        description: getDescription(row, fields),
-        amount: getAmt(row, fields, bank),
-        type: getType(row, fields, bank),
-        valuta: getCurrency(row, fields, bank),
-    }));
+    const results: RawTransaction[] = [];
+
+    for (const row of rows) {
+        const date = getDate(row, fields);
+        const amount = getAmt(row, fields, bank);
+        const description = getDescription(row, fields);
+
+        if (!date || isNaN(amount) || !description) {
+            console.warn('[txcategorizer] Skipping invalid row:', row);
+            continue;
+        }
+
+        results.push({
+            date,
+            description,
+            amount,
+            type: getType(row, fields, bank, ownAccounts),
+            valuta: getCurrency(row, fields, bank),
+        });
+    }
+
+    return results;
 }

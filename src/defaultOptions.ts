@@ -1,6 +1,26 @@
-import { Category } from './categorizeEngine.js';
+import { Category } from './categories.js';
+import { Options } from './types.js';
 
-const categoryGroups: Record<Category, string[]> = {
+export const merchantAliases: Record<string, string> = {
+    'extra': 'Coop Extra',
+    'mdc': "McDonald's",
+    'mcdonalds': "McDonald's",
+    'mcd': "McDonald's",
+    "mc donald's": "McDonald's",
+    'mc donald': "McDonald's",
+    'lyko.com/no': 'Lyko',
+    'apple.com/bill': 'Apple',
+    'bk': 'Burger King',
+    'ossg': 'Gjøvik Poliklinikk',
+    'no0770': 'H&M',
+    'berit': 'Kjolesenteret Lillo',
+    'rema': 'REMA 1000',
+    'uno-x': 'Uno-X',
+    'steamgames.com': 'Steam',
+    'clas ohl': 'Clas Ohlson',
+};
+
+export const categoryKeywords: Record<Category, string[]> = {
     'Dagligvare': [
         'extra',
         'kiwi',
@@ -219,8 +239,10 @@ const categoryGroups: Record<Category, string[]> = {
     'Annet': [],
 };
 
-export const categoryDict: Map<string, Category> = new Map(
-    Object.entries(categoryGroups).flatMap(([category, keywords]) =>
-        keywords.map((k) => [k, category as Category]),
-    ),
-);
+export const defaultOptions: Omit<Required<Options>, 'extractionRules'> = {
+    merchantAliases,
+    categoryKeywords,
+    ownAccounts: [],
+    locale: new Intl.Locale('nb-NO'),
+    debug: false,
+};

@@ -1,7 +1,6 @@
 import { BankFields, CsvRow } from '../parse/csv.js';
 import { Bank, TransactionType } from '../types.js';
 import { format, parse as parseDate } from 'date-fns';
-import { ownAccounts } from '../config.js';
 
 const typeMap: Record<string, TransactionType> = {
     'Varekjøp': 'Varekjøp',
@@ -68,7 +67,12 @@ export const getAmt = (row: CsvRow, fields: BankFields, bank: Bank) => {
     return inc + (bank === 'dnb' ? -out : out);
 };
 
-export const getType = (row: CsvRow, fields: BankFields, bank: Bank): TransactionType => {
+export const getType = (
+    row: CsvRow,
+    fields: BankFields,
+    bank: Bank,
+    ownAccounts: string[] = [],
+): TransactionType => {
     if (fields.toAccount && ownAccounts.includes(row[fields.toAccount])) return 'Kontoregulering';
 
     if (bank === 'valle') return normalizeType(row[fields.type!]);

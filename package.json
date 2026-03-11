@@ -7,10 +7,13 @@
     "scripts": {
         "build": "tsc"
     },
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "exports": {
         ".": {
             "import": "./dist/index.js",
+            "default": "./dist/index.js",
             "types": "./dist/index.d.ts"
         }
     },

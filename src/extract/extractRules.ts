@@ -1,28 +1,9 @@
 import { RawTransaction } from '../types\.js';
-import { capFirstChar } from '../util/extractHelpers\.js';
+import { capFirstChar } from './extractHelpers.js';
 
 const DEBUG = true;
 
 const raw = (desc: string) => (DEBUG ? { raw: desc } : {});
-
-export const merchantDict: Record<string, string> = {
-    'extra': 'Coop Extra',
-    'mdc': "McDonald's",
-    'mcdonalds': "McDonald's",
-    'mcd': "McDonald's",
-    "mc donald's": "McDonald's",
-    'mc donald': "McDonald's",
-    'lyko.com/no': 'Lyko',
-    'apple.com/bill': 'Apple',
-    'bk': 'Burger King',
-    'ossg': 'Gjøvik Poliklinikk',
-    'no0770': 'H&M',
-    'berit': 'Kjolesenteret Lillo',
-    'rema': 'REMA 1000',
-    'uno-x': 'Uno-X',
-    'steamgames.com': 'Steam',
-    'clas ohl': 'Clas Ohlson',
-};
 
 const twoWordMerchants = [
     // Prefixes
@@ -74,7 +55,7 @@ const twoWordMerchants = [
 
 const threeWordMerchants = ['Salt'];
 
-type MerchantRule = {
+export type MerchantRule = {
     match: (tx: RawTransaction) => boolean;
     extract: (tx: RawTransaction) => { merchant: string; counterparty?: string; raw?: string };
 };

@@ -1,36 +1,20 @@
+import { Category } from '../categories.js';
 import { ExtractedTransaction, FinalTransaction } from '../types.js';
-import { categoryDict } from './categoryRules.js';
 
-const CATEGORIES = [
-    'Dagligvare',
-    'Mat ute',
-    'Hjem',
-    'Underholdning',
-    'Gaming',
-    'Abonnement',
-    'Netthandel',
-    'Helse',
-    'Kosmetikk',
-    'Kreditt',
-    'Transport',
-    'Bil',
-    'Bolig',
-    'Boutgifter',
-    'Forsikring',
-    'Overføring',
-    'Inntekt',
-    'Sparing',
-    'Diverse',
-    'Annet',
-] as const;
+export function categorizeTransactions(
+    txs: ExtractedTransaction[],
+    categoryKeywords: Partial<Record<Category, string[]>>,
+): FinalTransaction[] {
+    const dict = new Map(
+        Object.entries(categoryKeywords).flatMap(([category, keywords]) =>
+            keywords!.map((k) => [k, category as Category]),
+        ),
+    );
 
-export type Category = (typeof CATEGORIES)[number];
-
-export function categorizeTransactions(txs: ExtractedTransaction[]): FinalTransaction[] {
     return txs.map((t) => {
         const m = `${t.merchant} ${t.counterparty ?? ''}`.toLowerCase();
         let category: Category = 'Annet';
-        for (const [keyword, cat] of categoryDict) {
+        for (const [keyword, cat] of dict) {
             if (m.includes(keyword)) {
                 category = cat;
                 break;
