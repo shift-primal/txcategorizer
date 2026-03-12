@@ -7,15 +7,15 @@ export function categorizeTransactions(
 ): FinalTransaction[] {
     const dict = new Map(
         Object.entries(categoryKeywords).flatMap(([category, keywords]) =>
-            keywords!.map((k) => [k, category as Category]),
+            keywords!.map((k) => [new RegExp(`\\b${k}\\b`), category as Category]),
         ),
     );
 
     return txs.map((t) => {
         const m = `${t.merchant} ${t.counterparty ?? ''}`.toLowerCase();
         let category: Category = 'Annet';
-        for (const [keyword, cat] of dict) {
-            if (m.includes(keyword)) {
+        for (const [pattern, cat] of dict) {
+            if (pattern.test(m)) {
                 category = cat;
                 break;
             }

@@ -11,6 +11,7 @@ const typeMap: Record<string, TransactionType> = {
     'Betaling innland': 'Betaling',
     'Betaling med melding innland': 'Betaling',
     'Betaling med KID innland': 'Giro',
+    'Innlandsbetaling': 'Giro',
     'Giro': 'Giro',
     'Overføring': 'Overføring',
     'Straksbetaling': 'Overføring',
@@ -36,7 +37,7 @@ export const getCurrency = (row: CsvRow, fields: BankFields, bank: Bank) => {
 export const cleanDescription = (desc: string) =>
     desc
         .replace(
-            /^(E-varekj\u00f8p|Varekj\u00f8p i butikk|Varekj\u00f8p|Overf\u00f8ring Innland|Overf\u00f8ring Innlandet|Overf\u00f8ring|Visa|Giro|Kontoregulering|Renter|L\u00f8nn)\s+/i,
+            /^(Visa\s+Varekj\u00f8p|E-varekj\u00f8p|Varekj\u00f8p i butikk|Varekj\u00f8p|Overf\u00f8ring Innland|Overf\u00f8ring Innlandet|Overf\u00f8ring|Visa|Giro|Kontoregulering|Renter|L\u00f8nn)\s+/i,
             '',
         )
         .replace(/^\d{2}\.\d{2}\s+/, '')
@@ -78,4 +79,9 @@ export const getType = (
     if (bank === 'valle') return normalizeType(row[fields.type!]);
 
     return normalizeType(row[fields.description].split(/\s+/)[0]);
+};
+
+export const getRawType = (row: CsvRow, fields: BankFields, bank: Bank): string => {
+    if (bank === 'valle') return row[fields.type!] ?? '';
+    return row[fields.description].split(/\s+/)[0];
 };

@@ -11,3 +11,6 @@ src/testdata/
 # Env
 .env
 *.local
+
+# Personal notes
+personal.md

@@ -1,6 +1,11 @@
 export { processTransactions } from './pipeline.js';
 export { type Category, CATEGORIES } from './categories.js';
 export type { MerchantRule } from './extract/extractRules.js';
+export {
+    defaultCityPrefixes,
+    defaultNWordMerchants,
+    defaultCorporateSuffixPattern,
+} from './defaultOptions.js';
 
 export type {
     FinalTransaction,

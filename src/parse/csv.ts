@@ -1,5 +1,12 @@
 import Papa from 'papaparse';
-import { getDate, getDescription, getAmt, getType, getCurrency } from './parseHelpers.js';
+import {
+    getDate,
+    getDescription,
+    getAmt,
+    getType,
+    getCurrency,
+    getRawType,
+} from './parseHelpers.js';
 import { Bank, RawTransaction } from '../types.js';
 
 type FieldMap = Record<Bank, BankFields>;
@@ -86,6 +93,7 @@ export function parseCsvString(
             description,
             amount,
             type: getType(row, fields, bank, ownAccounts),
+            rawType: getRawType(row, fields, bank),
             valuta: getCurrency(row, fields, bank),
         });
     }

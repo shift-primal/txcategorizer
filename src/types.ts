@@ -15,6 +15,9 @@ export type Options = {
     merchantAliases?: Record<string, string>;
     categoryKeywords?: Partial<Record<Category, string[]>>;
     ownAccounts?: string[];
+    cityPrefixes?: string[];
+    nWordMerchants?: Record<string, number>;
+    corporateSuffixPattern?: RegExp;
     locale?: Intl.Locale;
     debug?: boolean;
     extractionRules?: MerchantRule[];
@@ -39,6 +42,7 @@ export type RawTransaction = {
     amount: number;
     valuta: Valuta;
     type?: TransactionType;
+    rawType?: string;
     counterparty?: string;
 };
 
