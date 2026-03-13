@@ -59,15 +59,14 @@ export function createMerchantRules(
         {
             match: ({ type }) => type === 'Overføring',
             extract: ({ description, rawType }) => {
-                const isVipps = description.includes('Tpp:') || rawType === 'Straksbetaling';
+                const isVipps = description.startsWith('Tpp:') || rawType === 'Straksbetaling';
                 if (isVipps) {
                     if (description.startsWith('Til konto:'))
                         return { merchant: 'Overføring', ...raw(description) };
-                    return {
-                        merchant: 'Vipps',
-                        counterparty: trimCounterparty(description),
-                        ...raw(description),
-                    };
+                    const counterparty = description.startsWith('Tpp:')
+                        ? description.split('Tpp:')[1]?.trim() ?? description
+                        : trimCounterparty(description);
+                    return { merchant: 'Vipps', counterparty, ...raw(description) };
                 }
                 return {
                     merchant: 'Overføring',

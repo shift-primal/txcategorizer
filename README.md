@@ -133,4 +133,11 @@ processTransactions(buffer, 'valle'); // decoded internally
 | DNB   | CSV (`;` delimited) | UTF-8        |
 | Valle | CSV (`;` delimited) | Windows-1252 |
 
-# This documentation was drafted using an LLM (Claude)
+## Testing
+
+```bash
+pnpm test
+pnpm test:watch
+```
+
+> The tests and the documentation was drafted with the help of an LLM (Claude)
