@@ -8,7 +8,7 @@ export {
 } from './defaultOptions.js';
 
 export type {
-    FinalTransaction,
+    Transaction,
     ExtractedTransaction,
     RawTransaction,
     Bank,

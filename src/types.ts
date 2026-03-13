@@ -56,4 +56,4 @@ export type ExtractedTransaction = {
     raw?: string;
 };
 
-export type FinalTransaction = ExtractedTransaction & { category: Category };
+export type Transaction = ExtractedTransaction & { category: Category };

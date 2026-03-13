@@ -2,13 +2,13 @@ import { categorizeTransactions } from './categorize/categorizeEngine.js';
 import { defaultOptions } from './defaultOptions.js';
 import { extractMerchants } from './extract/extractEngine.js';
 import { parseCsvString } from './parse/csv.js';
-import { Bank, FinalTransaction, Options } from './types.js';
+import { Bank, Transaction, Options } from './types.js';
 
 export function processTransactions(
     content: string | ArrayBuffer,
     bank: Bank,
     options?: Options,
-): FinalTransaction[] {
+): Transaction[] {
     const opts = {
         ...defaultOptions,
         ...options,

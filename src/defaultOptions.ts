@@ -86,6 +86,8 @@ export const defaultMerchantAliases: Record<string, string> = {
     'tqsr': 'Burger King',
     'ossg': 'Gjøvik Poliklinikk',
     'no0770': 'H&M',
+    'no0772': 'H&M',
+    'hm': 'H&M',
     'berit': 'Kjolesenteret Lillo',
     'rema': 'REMA 1000',
     'uno-x': 'Uno-X',
@@ -107,12 +109,14 @@ export const defaultMerchantAliases: Record<string, string> = {
     'kfc': 'KFC',
     'sander': 'Sander Asia Mat',
     'vinmonopolet.no': 'Vinmonopolet',
-    'hm': 'H&M',
     'aashaug blomst': 'Aashaug Blomster',
     'snap': 'Snapchat',
     'domino': 'Dominos',
     'q:blush': 'Q Blush',
     'vidaxlno': 'Vida XL',
+    'jemogfix.no': 'Jem & Fix',
+    'geta bakeriproduk': 'Geta Bakeriprodukter',
+    'nebbenes': 'Nebbenes Kro',
 };
 
 export const defaultCategoryKeywords: Record<Category, string[]> = {
@@ -142,6 +146,8 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'plodine',
     ],
     'Mat ute': [
+        'geta bakeriprodukter',
+        'nebbenes kro',
         'ysteri',
         'burger king',
         "mcdonald's",
@@ -193,6 +199,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'olearys',
     ],
     'Hjem': [
+        'jem & fix',
         'interhome',
         'vidaxl',
         'ikea',
@@ -226,6 +233,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'lindex',
         'frøken strøken',
         'byggmax',
+        'vida xl',
     ],
     'Underholdning': [
         'gjøvik kino',
