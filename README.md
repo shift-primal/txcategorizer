@@ -2,6 +2,8 @@
 
 Parse and categorize Norwegian bank transaction exports (limited support for DNB and Valle) into structured, labeled data.
 
+[NPM Package](https://www.npmjs.com/package/txcategorizer)
+
 ## Install
 
 ```bash
