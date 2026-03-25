@@ -1,7 +1,7 @@
 import {
     defaultCityPrefixes,
     defaultCorporateSuffixPattern,
-    defaultNWordMerchants,
+    defaultNWordMerchants
 } from '../defaultOptions.js';
 import { RawTransaction } from '../types.js';
 import { capFirstChar } from './extractHelpers.js';
@@ -31,7 +31,7 @@ export function createMerchantRules(
     cityPrefixes: string[] = defaultCityPrefixes,
     nWordMerchants: Record<string, number> = defaultNWordMerchants,
     corporateSuffixPattern: RegExp = defaultCorporateSuffixPattern,
-    debug = false,
+    debug = false
 ): MerchantRule[] {
     const raw = (desc: string) => (debug ? { raw: desc } : {});
 
@@ -40,17 +40,17 @@ export function createMerchantRules(
 
         {
             match: ({ type }) => type === 'Omkostninger',
-            extract: ({ description }) => ({ merchant: 'Omkostninger', ...raw(description) }),
+            extract: ({ description }) => ({ merchant: 'Omkostninger', ...raw(description) })
         },
 
         {
             match: ({ type }) => type === 'Kontoregulering',
-            extract: ({ description }) => ({ merchant: 'Kontoregulering', ...raw(description) }),
+            extract: ({ description }) => ({ merchant: 'Kontoregulering', ...raw(description) })
         },
 
         {
             match: ({ type }) => type === 'Nedbetaling',
-            extract: ({ description }) => ({ merchant: 'Nedbetaling av lån', ...raw(description) }),
+            extract: ({ description }) => ({ merchant: 'Nedbetaling av lån', ...raw(description) })
         },
 
         // ── Overføring ────────────────────────────────────────────────────────
@@ -64,16 +64,16 @@ export function createMerchantRules(
                     if (description.startsWith('Til konto:'))
                         return { merchant: 'Overføring', ...raw(description) };
                     const counterparty = description.startsWith('Tpp:')
-                        ? description.split('Tpp:')[1]?.trim() ?? description
+                        ? (description.split('Tpp:')[1]?.trim() ?? description)
                         : trimCounterparty(description);
                     return { merchant: 'Vipps', counterparty, ...raw(description) };
                 }
                 return {
                     merchant: 'Overføring',
                     counterparty: trimCounterparty(description),
-                    ...raw(description),
+                    ...raw(description)
                 };
-            },
+            }
         },
 
         // ── Lønn ──────────────────────────────────────────────────────────────
@@ -81,12 +81,11 @@ export function createMerchantRules(
         {
             match: ({ type }) => type === 'Lønn',
             extract: ({ description }) => {
-                const employer = description.replace(/^(Lønn\s*)?(fra\s*)?/i, '').trim();
                 return {
-                    merchant: employer ? `Lønn: ${employer}` : 'Lønn',
-                    ...raw(description),
+                    merchant: description.replace(/^(Lønn\s*)?(fra\s*)?/i, '').trim(),
+                    ...raw(description)
                 };
-            },
+            }
         },
 
         // ── Giro ──────────────────────────────────────────────────────────────
@@ -103,7 +102,7 @@ export function createMerchantRules(
                             .split('Efaktura')[0]
                             .replace(/[,\s]+$/, '')
                             .trim(),
-                        ...raw(description),
+                        ...raw(description)
                     };
                 }
                 const stripped = cleaned.replace(corporateSuffixPattern, '').trim();
@@ -111,7 +110,7 @@ export function createMerchantRules(
                     return { merchant: 'Overføring', counterparty: stripped, ...raw(description) };
                 }
                 return { merchant: stripped, ...raw(description) };
-            },
+            }
         },
 
         // ── Betaling ──────────────────────────────────────────────────────────
@@ -125,7 +124,7 @@ export function createMerchantRules(
                     return { merchant: 'Betaling', counterparty: cleaned, ...raw(description) };
                 }
                 return { merchant: cleaned, ...raw(description) };
-            },
+            }
         },
 
         // ── Visa: specific patterns (most specific first) ─────────────────────
@@ -141,7 +140,7 @@ export function createMerchantRules(
                         ?.replace(/^vipps:/i, '')
                         .trim() ?? '';
                 return { merchant: 'Vipps', counterparty: capFirstChar(name), ...raw(description) };
-            },
+            }
         },
 
         // "Paypal :discord" / "Klarna :merchant" → merchant + counterparty
@@ -152,8 +151,8 @@ export function createMerchantRules(
             extract: ({ description }) => ({
                 merchant: description.split(':')[0].trim(),
                 counterparty: capFirstChar(description.split(':')[1]?.trim() ?? ''),
-                ...raw(description),
-            }),
+                ...raw(description)
+            })
         },
 
         // "Zettle_*astral" / "Zettle_:waffle" → merchant after * or :
@@ -161,8 +160,8 @@ export function createMerchantRules(
             match: ({ description }) => /zettle/i.test(description) && /[*:]/.test(description),
             extract: ({ description }) => ({
                 merchant: capFirstChar(description.split(/[*:]/)[1]?.trim() ?? 'Zettle'),
-                ...raw(description),
-            }),
+                ...raw(description)
+            })
         },
 
         // ── Visa / Varekjøp: known multi-word merchants ───────────────────────
@@ -171,18 +170,18 @@ export function createMerchantRules(
             match: ({ type, description }) =>
                 (type === 'Varekjøp' || type === 'Visa') &&
                 Object.keys(nWordMerchants).some((w) =>
-                    description.toLowerCase().startsWith(w.toLowerCase()),
+                    description.toLowerCase().startsWith(w.toLowerCase())
                 ),
             extract: ({ description }) => {
                 const entry = Object.entries(nWordMerchants).find(([w]) =>
-                    description.toLowerCase().startsWith(w.toLowerCase()),
+                    description.toLowerCase().startsWith(w.toLowerCase())
                 );
                 const n = entry?.[1] ?? 1;
                 return {
                     merchant: description.split(/\s+/).slice(0, n).join(' '),
-                    ...raw(description),
+                    ...raw(description)
                 };
-            },
+            }
         },
 
         // ── Visa / Varekjøp: city-prefixed merchants ──────────────────────────
@@ -201,7 +200,7 @@ export function createMerchantRules(
                 const merchant =
                     type === 'Visa' ? words.slice(0, 2).join(' ') : words.slice(1, 2).join(' ');
                 return { merchant, ...raw(description) };
-            },
+            }
         },
 
         // ── Visa: fallback ────────────────────────────────────────────────────
@@ -210,8 +209,8 @@ export function createMerchantRules(
             match: ({ type }) => type === 'Visa',
             extract: ({ description }) => ({
                 merchant: description.split(/\s+/)[0].replace(/:.*$/, ''),
-                ...raw(description),
-            }),
+                ...raw(description)
+            })
         },
 
         // ── Varekjøp: specific patterns ───────────────────────────────────────
@@ -226,10 +225,10 @@ export function createMerchantRules(
                         .split('_')
                         .slice(0, 2)
                         .join(' ')
-                        .trim(),
+                        .trim()
                 ),
-                ...raw(description),
-            }),
+                ...raw(description)
+            })
         },
 
         // "Klarna*VERO MODA" / "Vipps*Uno-X" → extract after *, fallback to prefix
@@ -237,8 +236,8 @@ export function createMerchantRules(
             match: ({ description }) => description.includes('*'),
             extract: ({ description }) => ({
                 merchant: description.split('*')[1]?.trim() || description.split('*')[0].trim(),
-                ...raw(description),
-            }),
+                ...raw(description)
+            })
         },
 
         // ── Varekjøp: fallback ────────────────────────────────────────────────
@@ -247,9 +246,9 @@ export function createMerchantRules(
             match: ({ type }) => type === 'Varekjøp',
             extract: ({ description }) => ({
                 merchant: description.split(/\s+/)[0],
-                ...raw(description),
-            }),
-        },
+                ...raw(description)
+            })
+        }
     ];
 }
 

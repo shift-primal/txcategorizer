@@ -14,7 +14,7 @@ export const defaultCityPrefixes: string[] = [
     'Reinsvoll',
     'Moelv',
     'Heidal',
-    'Oslo',
+    'Oslo'
 ];
 
 export const defaultNWordMerchants: Record<string, number> = {
@@ -68,7 +68,7 @@ export const defaultNWordMerchants: Record<string, number> = {
     'Salt': 3,
     'Deli': 3,
     'Sp ': 3,
-    'Hage': 3,
+    'Hage': 3
 };
 
 export const defaultMerchantAliases: Record<string, string> = {
@@ -115,8 +115,11 @@ export const defaultMerchantAliases: Record<string, string> = {
     'q:blush': 'Q Blush',
     'vidaxlno': 'Vida XL',
     'jemogfix.no': 'Jem & Fix',
-    'geta bakeriproduk': 'Geta Bakeriprodukter',
+    'geta bakeripro': 'Geta Bakeri',
     'nebbenes': 'Nebbenes Kro',
+    'riotgamesl': 'Riot Games',
+    'lennardigit': 'Lennar Digital',
+    'tidalmusica': 'Tidal'
 };
 
 export const defaultCategoryKeywords: Record<Category, string[]> = {
@@ -143,10 +146,10 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'gottebiten',
         'kaufland',
         'godishuset',
-        'plodine',
+        'plodine'
     ],
     'Mat ute': [
-        'geta bakeriprodukter',
+        'geta bakeri',
         'nebbenes kro',
         'ysteri',
         'burger king',
@@ -196,7 +199,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'heim',
         'heidi',
         'dominos',
-        'olearys',
+        'olearys'
     ],
     'Hjem': [
         'jem & fix',
@@ -233,7 +236,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'lindex',
         'frøken strøken',
         'byggmax',
-        'vida xl',
+        'vida xl'
     ],
     'Underholdning': [
         'gjøvik kino',
@@ -258,7 +261,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'mr vape',
         'prodbygeam',
         'nostalgix',
-        'kino',
+        'kino'
     ],
     'Gaming': ['steam', 'steam games', 'discord', 'riotgames', 'riot', 'jagex', 'eneba'],
     'Abonnement': [
@@ -287,7 +290,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'mova',
         'disney',
         'prime',
-        'snapchat',
+        'snapchat'
     ],
     'Netthandel': [
         'cdon',
@@ -301,7 +304,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'matchi',
         'posten norge',
         'sp nox',
-        'ups',
+        'ups'
     ],
     'Helse': [
         'spesialistsenter',
@@ -319,7 +322,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'apotheke',
         'spesialistsenter',
         'poliklinikk',
-        'bodypower',
+        'bodypower'
     ],
     'Kosmetikk': [
         'cutters',
@@ -359,7 +362,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'ambrosia',
         'q blush',
         'vic',
-        'claire',
+        'claire'
     ],
     'Kreditt': ['klarna', 'qliro', 'credicare', 'tfbank', 'riverty', 'arvato'],
     'Transport': ['ruter', 'entur', 'seaways', 'vy app', 'asfinag', 'scandlines', 'mv'],
@@ -378,7 +381,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'konzum',
         'mer',
         'norges automobil',
-        'drivstof',
+        'drivstof'
     ],
     'Bolig': ['nedbetaling'],
     'Boutgifter': [
@@ -388,7 +391,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'globalconnect',
         'verisure',
         'omkostninger',
-        'minel',
+        'minel'
     ],
     'Forsikring': ['fremtind forsikring', 'gjensidige', 'agria'],
     'Overføring': ['betaling', 'overføring', 'kontoregulering', 'revolut', 'adyen', 'vipps'],
@@ -407,8 +410,9 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'nya',
         'terme',
         'espos',
+        'hotel laimerhof'
     ],
-    'Annet': [],
+    'Annet': []
 };
 
 export const defaultOwnAccounts: string[] = [''];
@@ -421,5 +425,5 @@ export const defaultOptions: Omit<Required<Options>, 'extractionRules'> = {
     nWordMerchants: defaultNWordMerchants,
     corporateSuffixPattern: defaultCorporateSuffixPattern,
     locale: new Intl.Locale('nb-NO'),
-    debug: false,
+    debug: false
 };
