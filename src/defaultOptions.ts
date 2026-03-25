@@ -263,7 +263,16 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'nostalgix',
         'kino'
     ],
-    'Gaming': ['steam', 'steam games', 'discord', 'riotgames', 'riot', 'jagex', 'eneba'],
+    'Gaming': [
+        'steam',
+        'steam games',
+        'discord',
+        'riotgames',
+        'riot',
+        'riot games',
+        'jagex',
+        'eneba'
+    ],
     'Abonnement': [
         'apple',
         'tidalmusic',
