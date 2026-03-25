@@ -43,8 +43,16 @@ export function extractMerchants(
         const merchant = aliasKey
             ? merchantAliases[aliasKey]
             : capFirstChar(rawMerchant.toLowerCase());
-        const counterparty = extracted.counterparty
-            ? capFirstChar(extracted.counterparty.toLowerCase())
+        const rawCounterparty = extracted.counterparty?.trim();
+        const counterpartyAliasKey = rawCounterparty
+            ? Object.keys(merchantAliases).find((k) =>
+                  rawCounterparty.toLowerCase().startsWith(k),
+              )
+            : undefined;
+        const counterparty = rawCounterparty
+            ? counterpartyAliasKey
+                ? merchantAliases[counterpartyAliasKey]
+                : capFirstChar(rawCounterparty.toLowerCase())
             : undefined;
         return {
             date: tx.date,
