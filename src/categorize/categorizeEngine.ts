@@ -3,12 +3,15 @@ import { ExtractedTransaction, Transaction } from '../types.js';
 
 export function categorizeTransactions(
     txs: ExtractedTransaction[],
-    categoryKeywords: Partial<Record<Category, string[]>>,
+    categoryKeywords: Partial<Record<Category, string[]>>
 ): Transaction[] {
     const dict = new Map(
         Object.entries(categoryKeywords).flatMap(([category, keywords]) =>
-            keywords!.map((k) => [new RegExp(`\\b${k}\\b`), category as Category]),
-        ),
+            keywords!.map((k) => [
+                new RegExp(`(?<![a-zA-Z0-9æøåÆØÅ])${k}(?![a-zA-Z0-9æøåÆØÅ])`, 'i'),
+                category as Category
+            ])
+        )
     );
 
     return txs.map((t) => {

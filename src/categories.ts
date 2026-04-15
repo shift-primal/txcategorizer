@@ -8,6 +8,7 @@ export const CATEGORIES = [
     'Netthandel',
     'Helse',
     'Kosmetikk',
+    'Klær',
     'Kreditt',
     'Transport',
     'Bil',
@@ -18,7 +19,7 @@ export const CATEGORIES = [
     'Inntekt',
     'Sparing',
     'Diverse',
-    'Annet',
+    'Annet'
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];

@@ -25,6 +25,7 @@ export function extractMerchants(
         const rawMerchant = extracted.merchant
             .replace(/\s+\d{2,4}$/, '')
             .replace(/\s+\b(as|asa|ab|ltd|sa)\b\.?$/i, '')
+            .replace(/\bwww\.([^.\s]+)\.\S*/gi, '$1')
             .trim();
         if (!rawMerchant) {
             return {
@@ -43,7 +44,9 @@ export function extractMerchants(
         const merchant = aliasKey
             ? merchantAliases[aliasKey]
             : capFirstChar(rawMerchant.toLowerCase());
-        const rawCounterparty = extracted.counterparty?.trim();
+        const rawCounterparty = extracted.counterparty
+            ?.replace(/\bwww\.([^.\s]+)\.\S*/gi, '$1')
+            .trim();
         const counterpartyAliasKey = rawCounterparty
             ? Object.keys(merchantAliases).find((k) =>
                   rawCounterparty.toLowerCase().startsWith(k),

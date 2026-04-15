@@ -68,7 +68,8 @@ export const defaultNWordMerchants: Record<string, number> = {
     'Salt': 3,
     'Deli': 3,
     'Sp ': 3,
-    'Hage': 3
+    'Hage': 3,
+    'Sander': 3
 };
 
 export const defaultMerchantAliases: Record<string, string> = {
@@ -107,7 +108,6 @@ export const defaultMerchantAliases: Record<string, string> = {
     'tfbank': 'Avarda',
     "tugo'": 'Tugo',
     'kfc': 'KFC',
-    'sander asia': 'Sander Asia Mat',
     'vinmonopolet.no': 'Vinmonopolet',
     'aashaug blomst': 'Aashaug Blomster',
     'snap': 'Snapchat',
@@ -119,7 +119,12 @@ export const defaultMerchantAliases: Record<string, string> = {
     'nebbenes': 'Nebbenes Kro',
     'riotgamesl': 'Riot Games',
     'lennardigit': 'Lennar Digital',
-    'tidalmusica': 'Tidal'
+    'tidalmusica': 'Tidal',
+    'nostalgixa': 'Nostalgix Audio',
+    'fredrikoglouisia.no': 'Fredrik og Louisa',
+    '620': 'Europris',
+    'verdipapir': 'Verdipapir',
+    'apotek1': 'Apotek 1'
 };
 
 export const defaultCategoryKeywords: Record<Category, string[]> = {
@@ -202,6 +207,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'olearys'
     ],
     'Hjem': [
+        'feel',
         'jem & fix',
         'interhome',
         'vidaxl',
@@ -261,21 +267,14 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'mr vape',
         'prodbygeam',
         'nostalgix',
-        'kino'
+        'kino',
+        'lennar digital'
     ],
-    'Gaming': [
-        'steam',
-        'steam games',
-        'discord',
-        'riotgames',
-        'riot',
-        'riot games',
-        'jagex',
-        'eneba'
-    ],
+    'Gaming': ['steam', 'riotgames', 'riot', 'jagex', 'eneba'],
     'Abonnement': [
+        'discord',
         'apple',
-        'tidalmusic',
+        'tidal',
         'telenor',
         'splice',
         'claude.ai',
@@ -318,6 +317,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
     'Helse': [
         'spesialistsenter',
         'apotek',
+        'apoteket',
         'legevakt',
         'helfo',
         'rtg.polikl',
@@ -341,38 +341,42 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'nordicfeel',
         'kicks',
         'rituals',
-        'feel raufoss',
-        'zalando',
-        'bubbleroom',
-        'change lingerie',
         'lyko',
-        'gina',
-        'kappahl',
         'cosmetics',
-        'euro sko',
         'makeup',
-        'cubus',
         'vero',
         'atelièr',
-        'get inspired',
-        'nakd',
         'glitter',
-        'skoringen',
         'vita',
         'silver',
         'change',
-        'fredrik',
-        'junkyard',
-        'h&m',
+        'fredrik og louisa',
         'nyx',
-        'new yorker',
-        'kjolesenteret',
-        'm.a.p.t',
-        'ambrosia',
         'q blush',
-        'vic',
         'claire'
     ],
+
+    'Klær': [
+        'zalando',
+        'bubbleroom',
+        'change lingerie',
+        'gina',
+        'kappahl',
+        'h&m',
+        'nakd',
+        'get inspired',
+        'ambrosia',
+        'junkyard',
+        'new yorker',
+        'kjolesenteret',
+
+        'vic',
+        'euro sko',
+        'm.a.p.t',
+        'cubus',
+        'skoringen'
+    ],
+
     'Kreditt': ['klarna', 'qliro', 'credicare', 'tfbank', 'riverty', 'arvato'],
     'Transport': ['ruter', 'entur', 'seaways', 'vy app', 'asfinag', 'scandlines', 'mv'],
     'Bil': [
@@ -424,7 +428,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
     'Annet': []
 };
 
-export const defaultOwnAccounts: string[] = [''];
+export const defaultOwnAccounts: string[] = [];
 
 export const defaultOptions: Omit<Required<Options>, 'extractionRules'> = {
     merchantAliases: defaultMerchantAliases,
