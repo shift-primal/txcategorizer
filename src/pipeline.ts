@@ -1,38 +1,35 @@
-import { categorizeTransactions } from './categorize/categorizeEngine.js';
-import { defaultOptions } from './defaultOptions.js';
-import { extractMerchants } from './extract/extractEngine.js';
-import { parseCsvString } from './parse/csv.js';
-import { Bank, Transaction, Options } from './types.js';
+import { categorizeTransactions } from './categorize/engine.js';
+import { resolveOptions } from './defaults.js';
+import { extractMerchants } from './extract/engine.js';
+import { bankConfigs, parseCsv } from './parse/csv.js';
+import { BANKS } from './types.js';
+import type { Bank, Options, Transaction } from './types.js';
 
+/**
+ * Parse a bank CSV export into categorized transactions.
+ *
+ * `content` can be a string or a raw `ArrayBuffer`; buffers are decoded
+ * with the bank's encoding (Valle exports are Windows-1252).
+ */
 export function processTransactions(
     content: string | ArrayBuffer,
     bank: Bank,
-    options?: Options,
+    options?: Options
 ): Transaction[] {
-    const opts = {
-        ...defaultOptions,
-        ...options,
-        ownAccounts: options?.ownAccounts ?? defaultOptions.ownAccounts,
-    };
-
-    if (!content) throw new Error('[txcategorizer] content is empty');
-    if (bank !== 'dnb' && bank !== 'valle')
-        throw new Error(`[txcategorizer] unknown bank: ${bank}`);
+    if (!BANKS.includes(bank)) {
+        throw new Error(`[txcategorizer] unknown bank: ${String(bank)}`);
+    }
 
     const text =
         typeof content === 'string'
             ? content
-            : new TextDecoder(bank === 'valle' ? 'windows-1252' : 'utf-8').decode(content);
+            : new TextDecoder(bankConfigs[bank].encoding).decode(content);
 
-    const raw = parseCsvString(text, bank, opts.ownAccounts);
-    const extracted = extractMerchants(
-        raw,
-        opts.merchantAliases,
-        opts.extractionRules,
-        opts.cityPrefixes,
-        opts.nWordMerchants,
-        opts.corporateSuffixPattern,
-        opts.debug,
-    );
-    return categorizeTransactions(extracted, opts.categoryKeywords);
+    if (!text.trim()) throw new Error('[txcategorizer] content is empty');
+
+    const resolved = resolveOptions(options);
+
+    const raw = parseCsv(text, bank, resolved);
+    const extracted = extractMerchants(raw, resolved);
+    return categorizeTransactions(extracted, resolved.categoryKeywords);
 }

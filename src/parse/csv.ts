@@ -1,102 +1,82 @@
 import Papa from 'papaparse';
-import {
-    getDate,
-    getDescription,
-    getAmt,
-    getType,
-    getCurrency,
-    getRawType,
-} from './parseHelpers.js';
-import { Bank, RawTransaction } from '../types.js';
+import { getAmount, getCurrency, getDate, getDescription, getRawType, getType } from './helpers.js';
+import type { Bank, RawTransaction, ResolvedOptions } from '../types.js';
 
-type FieldMap = Record<Bank, BankFields>;
+export type CsvRow = Record<string, string | undefined>;
 
-export type CsvRow = Record<string, string>;
-
-export type BankFields = {
-    date: string;
-    description: string;
-    incoming: string;
-    outgoing: string;
-    type: string | undefined;
-    currency: string | undefined;
-    toAccount: string | undefined;
+export type BankConfig = {
+    encoding: 'utf-8' | 'windows-1252';
+    fields: {
+        date: string;
+        description: string;
+        incoming: string;
+        outgoing: string;
+        /** Column holding the transaction type. Banks without one derive it from the description. */
+        type?: string;
+        /** Column holding currency info. Defaults to the description column. */
+        currency?: string;
+        /** Column holding the receiving account number, used for own-account detection. */
+        toAccount?: string;
+    };
 };
 
-const headers = {
-    dnb: '"Dato";"Forklaring";"Rentedato";"Ut fra konto";"Inn på konto"',
-    valle: 'Betalingstidspunkt;Bokført dato;Valuteringsdato;Skildring;Type;Undertype;Frå konto;Avsendar;Til konto;Mottakarnamn;Beløp inn;Beløp ut;Valuta;Status;Melding/KID/Fakt.nr;eFaktura;eFaktura eier;eFaktura type;Melding;KID;Faktura nr.',
-};
-
-const fieldMap: FieldMap = {
+export const bankConfigs: Record<Bank, BankConfig> = {
     dnb: {
-        date: 'Dato',
-        description: 'Forklaring',
-        incoming: 'Inn på konto',
-        outgoing: 'Ut fra konto',
-        type: undefined,
-        currency: undefined,
-        toAccount: undefined,
+        encoding: 'utf-8',
+        fields: {
+            date: 'Dato',
+            description: 'Forklaring',
+            incoming: 'Inn på konto',
+            outgoing: 'Ut fra konto'
+        }
     },
     valle: {
-        date: 'Betalingstidspunkt',
-        description: 'Skildring',
-        incoming: 'Beløp inn',
-        outgoing: 'Beløp ut',
-        type: 'Undertype',
-        currency: 'Melding/KID/Fakt.nr',
-        toAccount: 'Til konto',
-    },
+        encoding: 'windows-1252',
+        fields: {
+            date: 'Betalingstidspunkt',
+            description: 'Skildring',
+            incoming: 'Beløp inn',
+            outgoing: 'Beløp ut',
+            type: 'Undertype',
+            currency: 'Melding/KID/Fakt.nr',
+            toAccount: 'Til konto'
+        }
+    }
 };
 
-const parse = (content: string): CsvRow[] =>
+const DATE_PATTERN = /^\d{2}\.\d{2}\.\d{4}$/;
+
+const parseRows = (content: string): CsvRow[] =>
     Papa.parse<CsvRow>(content, { header: true, delimiter: ';', skipEmptyLines: true }).data;
 
-export function parseSingleLine({ tx, bank }: { tx: string; bank: Bank }): RawTransaction {
-    const fields = fieldMap[bank];
-    const row = parse(headers[bank] + '\n' + tx)[0];
+export function parseCsv(content: string, bank: Bank, options: ResolvedOptions): RawTransaction[] {
+    const config = bankConfigs[bank];
 
-    return {
-        date: getDate(row, fields),
-        description: getDescription(row, fields),
-        amount: getAmt(row, fields, bank),
-        type: getType(row, fields, bank),
-        valuta: getCurrency(row, fields, bank),
-    };
-}
-
-export function parseCsvString(
-    content: string,
-    bank: Bank,
-    ownAccounts: string[],
-): RawTransaction[] {
-    const fields = fieldMap[bank];
-
-    const rows = parse(content).filter((row) =>
-        /^\d{2}\.\d{2}\.\d{4}$/.test(row[fieldMap[bank].date]),
+    const rows = parseRows(content).filter((row) =>
+        DATE_PATTERN.test(row[config.fields.date] ?? '')
     );
 
-    const results: RawTransaction[] = [];
+    const transactions: RawTransaction[] = [];
 
     for (const row of rows) {
-        const date = getDate(row, fields);
-        const amount = getAmt(row, fields, bank);
-        const description = getDescription(row, fields);
+        const date = getDate(row, config);
+        const amount = getAmount(row, config, bank);
+        const description = getDescription(row, config);
 
-        if (!date || isNaN(amount) || !description) {
-            console.warn('[txcategorizer] Skipping invalid row:', row);
+        if (!date || Number.isNaN(amount) || !description) {
+            if (options.debug) console.warn('[txcategorizer] skipping invalid row:', row);
             continue;
         }
 
-        results.push({
+        transactions.push({
             date,
             description,
             amount,
-            type: getType(row, fields, bank, ownAccounts),
-            rawType: getRawType(row, fields, bank),
-            valuta: getCurrency(row, fields, bank),
+            type: getType(row, config, options.ownAccounts),
+            rawType: getRawType(row, config),
+            valuta: getCurrency(row, config)
         });
     }
 
-    return results;
+    return transactions;
 }

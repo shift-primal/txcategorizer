@@ -1,18 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { categorizeTransactions } from '../categorize/categorizeEngine.js';
-import { defaultCategoryKeywords } from '../defaultOptions.js';
-import type { ExtractedTransaction } from '../types.js';
+import { categorizeTransactions } from '../src/categorize/engine.js';
+import { defaultCategoryKeywords } from '../src/defaults.js';
+import type { CategoryKeywords, ExtractedTransaction } from '../src/types.js';
 
 const tx = (merchant: string, counterparty?: string): ExtractedTransaction => ({
     date: '2025-01-01',
     amount: -100,
     merchant,
-    counterparty,
     type: 'Varekjøp',
+    ...(counterparty && { counterparty })
 });
 
-const categorize = (merchant: string, counterparty?: string) =>
-    categorizeTransactions([tx(merchant, counterparty)], defaultCategoryKeywords)[0].category;
+const categorize = (merchant: string, keywords: CategoryKeywords = defaultCategoryKeywords) =>
+    categorizeTransactions([tx(merchant)], keywords)[0]!.category;
 
 describe('categorizeTransactions', () => {
     it('matches grocery store', () => {
@@ -39,30 +39,33 @@ describe('categorizeTransactions', () => {
     });
 
     it('does NOT match partial words (word boundary check)', () => {
-        // "hm" should not match "ahm" or "thm"
-        const keywords = { Netthandel: ['hm'] };
-        const result = categorizeTransactions([tx('Ahm Store')], keywords)[0];
-        expect(result.category).toBe('Annet');
+        // "hm" should not match inside "ahm"
+        expect(categorize('Ahm Store', { Netthandel: ['hm'] })).toBe('Annet');
     });
 
     it('matches on word boundary', () => {
-        const keywords = { Netthandel: ['hm'] };
-        const result = categorizeTransactions([tx('Hm Store')], keywords)[0];
-        expect(result.category).toBe('Netthandel');
+        expect(categorize('Hm Store', { Netthandel: ['hm'] })).toBe('Netthandel');
+    });
+
+    it('treats keywords as literal text, not regex', () => {
+        // "m.a.p.t" must not match "mxaxpxt" via the dots
+        expect(categorize('Mxaxpxt', { 'Klær': ['m.a.p.t'] })).toBe('Annet');
+        expect(categorize('M.a.p.t Oslo', { 'Klær': ['m.a.p.t'] })).toBe('Klær');
     });
 
     it('matches on counterparty as well', () => {
-        const keywords = { Overføring: ['vipps'] };
-        const result = categorizeTransactions([tx('Betaling', 'Vipps user')], keywords)[0];
+        const result = categorizeTransactions(
+            [tx('Betaling', 'Vipps user')],
+            { Overføring: ['vipps'] }
+        )[0]!;
         expect(result.category).toBe('Overføring');
     });
 
     it('first matching keyword wins', () => {
-        const keywords = {
+        const keywords: CategoryKeywords = {
             Dagligvare: ['rema'],
-            Netthandel: ['rema'],
+            Netthandel: ['rema']
         };
-        const result = categorizeTransactions([tx('Rema 1000')], keywords)[0];
-        expect(result.category).toBe('Dagligvare');
+        expect(categorize('Rema 1000', keywords)).toBe('Dagligvare');
     });
 });

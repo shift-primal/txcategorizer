@@ -1,5 +1,5 @@
-import { Category } from './categories.js';
-import { Options } from './types.js';
+import type { Category } from './categories.js';
+import type { MerchantAliases, Options, ResolvedOptions } from './types.js';
 
 export const defaultCorporateSuffixPattern: RegExp =
     /\s+(forsikring(saktiebolaget)?|finans|norge|as|asa)\b.*$/i;
@@ -72,7 +72,7 @@ export const defaultNWordMerchants: Record<string, number> = {
     'Sander': 3
 };
 
-export const defaultMerchantAliases: Record<string, string> = {
+export const defaultMerchantAliases: MerchantAliases = {
     'extra': 'Coop Extra',
     'f™rsžkringsaktiebolaget agria': 'Agria',
     'silogata': 'Ukjent',
@@ -179,7 +179,6 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'øya maritim',
         'max burgers',
         'dominos pizza',
-        'nebbenes kro',
         'shell',
         '7-eleven',
         '7 eleven',
@@ -194,7 +193,6 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'astral',
         'bkh',
         'slasticarna',
-        'fly chicken',
         'tqsr',
         'caffe',
         'yx',
@@ -235,7 +233,6 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'ideal',
         'sostrene',
         'søstrene',
-        'feel',
         'kid',
         'blomster',
         'clas ohlson',
@@ -296,7 +293,6 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'max',
         'disney',
         'mova',
-        'disney',
         'prime',
         'snapchat'
     ],
@@ -329,7 +325,6 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'specsave',
         'sunkost',
         'apotheke',
-        'spesialistsenter',
         'poliklinikk',
         'bodypower'
     ],
@@ -355,7 +350,6 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'q blush',
         'claire'
     ],
-
     'Klær': [
         'zalando',
         'bubbleroom',
@@ -369,14 +363,12 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
         'junkyard',
         'new yorker',
         'kjolesenteret',
-
         'vic',
         'euro sko',
         'm.a.p.t',
         'cubus',
         'skoringen'
     ],
-
     'Kreditt': ['klarna', 'qliro', 'credicare', 'tfbank', 'riverty', 'arvato'],
     'Transport': ['ruter', 'entur', 'seaways', 'vy app', 'asfinag', 'scandlines', 'mv'],
     'Bil': [
@@ -428,15 +420,21 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
     'Annet': []
 };
 
-export const defaultOwnAccounts: string[] = [];
-
-export const defaultOptions: Omit<Required<Options>, 'extractionRules'> = {
+export const defaultOptions: ResolvedOptions = {
     merchantAliases: defaultMerchantAliases,
     categoryKeywords: defaultCategoryKeywords,
-    ownAccounts: defaultOwnAccounts,
+    ownAccounts: [],
     cityPrefixes: defaultCityPrefixes,
     nWordMerchants: defaultNWordMerchants,
     corporateSuffixPattern: defaultCorporateSuffixPattern,
-    locale: new Intl.Locale('nb-NO'),
     debug: false
 };
+
+/** Merge user options over the defaults, ignoring explicitly `undefined` values. */
+export function resolveOptions(options: Options = {}): ResolvedOptions {
+    const provided = Object.fromEntries(
+        Object.entries(options).filter(([, value]) => value !== undefined)
+    ) as Options;
+
+    return { ...defaultOptions, ...provided };
+}

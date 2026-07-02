@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { extractMerchants } from '../extract/extractEngine.js';
-import { defaultMerchantAliases } from '../defaultOptions.js';
-import type { RawTransaction } from '../types.js';
+import { extractMerchants } from '../src/extract/engine.js';
+import { resolveOptions } from '../src/defaults.js';
+import type { Options, RawTransaction } from '../src/types.js';
 
 const tx = (overrides: Partial<RawTransaction>): RawTransaction => ({
     date: '2025-01-01',
@@ -9,11 +9,11 @@ const tx = (overrides: Partial<RawTransaction>): RawTransaction => ({
     description: '',
     valuta: { currency: 'NOK', exchangeRate: 1 },
     type: 'Varekjøp',
-    ...overrides,
+    ...overrides
 });
 
-const extract = (overrides: Partial<RawTransaction>) =>
-    extractMerchants([tx(overrides)], defaultMerchantAliases)[0];
+const extract = (overrides: Partial<RawTransaction>, options?: Options) =>
+    extractMerchants([tx(overrides)], resolveOptions(options))[0]!;
 
 describe('extractMerchants — Varekjøp', () => {
     it('takes first word as merchant', () => {
@@ -39,6 +39,11 @@ describe('extractMerchants — Varekjøp', () => {
     it('extracts merchant after * separator', () => {
         const r = extract({ description: 'Klarna*VERO MODA' });
         expect(r.merchant).toBe('Vero Moda');
+    });
+
+    it('falls back to Ukjent for empty descriptions', () => {
+        const r = extract({ description: '' });
+        expect(r.merchant).toBe('Ukjent');
     });
 });
 
@@ -80,17 +85,14 @@ describe('extractMerchants — Overføring', () => {
     it('extracts counterparty for regular transfer', () => {
         const r = extract({
             type: 'Overføring',
-            description: 'Haakon Paulsen (12066464367)',
+            description: 'Haakon Paulsen (12066464367)'
         });
         expect(r.merchant).toBe('Overføring');
         expect(r.counterparty).toBe('Haakon Paulsen');
     });
 
     it('marks Tpp: as Vipps', () => {
-        const r = extract({
-            type: 'Overføring',
-            description: 'Tpp: jan-fredrik',
-        });
+        const r = extract({ type: 'Overføring', description: 'Tpp: jan-fredrik' });
         expect(r.merchant).toBe('Vipps');
     });
 
@@ -98,7 +100,7 @@ describe('extractMerchants — Overføring', () => {
         const r = extract({
             type: 'Overføring',
             rawType: 'Straksbetaling',
-            description: 'Jan Fredrik',
+            description: 'Jan Fredrik'
         });
         expect(r.merchant).toBe('Vipps');
     });
@@ -107,7 +109,7 @@ describe('extractMerchants — Overføring', () => {
         const r = extract({
             type: 'Overføring',
             rawType: 'Straksbetaling',
-            description: 'Til konto: 2890 81 74710',
+            description: 'Til konto: 2890 81 74710'
         });
         expect(r.merchant).toBe('Overføring');
     });
@@ -115,7 +117,7 @@ describe('extractMerchants — Overføring', () => {
     it('splits counterparty on Betaling keyword', () => {
         const r = extract({
             type: 'Overføring',
-            description: 'Anna Huset Linde Betaling Tpp: Vipps Mobilepay AS',
+            description: 'Anna Huset Linde Betaling Tpp: Vipps Mobilepay AS'
         });
         expect(r.counterparty).toBe('Anna Huset');
     });
@@ -125,7 +127,7 @@ describe('extractMerchants — Giro', () => {
     it('extracts company from Efaktura', () => {
         const r = extract({
             type: 'Giro',
-            description: 'Telenor Norge As, Mobil Efaktura',
+            description: 'Telenor Norge As, Mobil Efaktura'
         });
         expect(r.merchant).toBe('Telenor');
     });
@@ -133,7 +135,7 @@ describe('extractMerchants — Giro', () => {
     it('treats 3-word name as person → Overføring', () => {
         const r = extract({
             type: 'Giro',
-            description: 'Sindre Hakkeseth Branden',
+            description: 'Sindre Hakkeseth Branden'
         });
         expect(r.merchant).toBe('Overføring');
         expect(r.counterparty).toBe('Sindre Hakkeseth Branden');
@@ -142,7 +144,7 @@ describe('extractMerchants — Giro', () => {
     it('keeps company name as merchant', () => {
         const r = extract({
             type: 'Giro',
-            description: 'Gjensidige Forsikring Asa (60050608460)',
+            description: 'Gjensidige Forsikring Asa (60050608460)'
         });
         expect(r.merchant).toBe('Gjensidige');
     });
@@ -152,7 +154,7 @@ describe('extractMerchants — Betaling', () => {
     it('treats 3-word name as person → Betaling + counterparty', () => {
         const r = extract({
             type: 'Betaling',
-            description: 'Abdul Mohammed Haugen (12063188240)',
+            description: 'Abdul Mohammed Haugen (12063188240)'
         });
         expect(r.merchant).toBe('Betaling');
         expect(r.counterparty).toBe('Abdul Mohammed Haugen');
@@ -161,17 +163,53 @@ describe('extractMerchants — Betaling', () => {
     it('uses company name as merchant', () => {
         const r = extract({
             type: 'Betaling',
-            description: 'Verisure As (17108281812)',
+            description: 'Verisure As (17108281812)'
         });
         expect(r.merchant).toBe('Verisure');
     });
 });
 
-describe('extractMerchants — aliases', () => {
+describe('extractMerchants — options', () => {
     it('applies merchant alias', () => {
-        const r = extractMerchants([tx({ description: 'Mcdonald S Hamar', type: 'Varekjøp' })], {
-            mcdonald: "McDonald's",
-        })[0];
+        const r = extract(
+            { description: 'Mcdonald S Hamar', type: 'Varekjøp' },
+            { merchantAliases: { mcdonald: "McDonald's" } }
+        );
         expect(r.merchant).toBe("McDonald's");
+    });
+
+    it('omits valuta for NOK transactions', () => {
+        const r = extract({ description: 'KIWI 012' });
+        expect(r.valuta).toBeUndefined();
+    });
+
+    it('keeps valuta for foreign-currency transactions', () => {
+        const r = extract({
+            description: 'STEAM PURCHASE',
+            valuta: { currency: 'EUR', exchangeRate: 11.5 }
+        });
+        expect(r.valuta).toEqual({ currency: 'EUR', exchangeRate: 11.5 });
+    });
+
+    it('includes raw description in debug mode', () => {
+        const r = extract({ description: 'KIWI 012 RAUFOSS' }, { debug: true });
+        expect(r.raw).toBe('KIWI 012 RAUFOSS');
+    });
+
+    it('uses custom extraction rules when provided', () => {
+        const r = extract(
+            { description: 'whatever store 123' },
+            {
+                extractionRules: [
+                    {
+                        match: () => true,
+                        extract: ({ description }) => ({
+                            merchant: description.split(/\s+/)[0] ?? ''
+                        })
+                    }
+                ]
+            }
+        );
+        expect(r.merchant).toBe('Whatever');
     });
 });

@@ -1,31 +1,48 @@
 {
     "name": "txcategorizer",
-    "version": "0.2.0",
+    "version": "1.0.0",
+    "description": "Parse and categorize Norwegian bank transaction exports (DNB, Valle) into typed, labeled transactions",
+    "keywords": [
+        "bank",
+        "transactions",
+        "csv",
+        "categorization",
+        "personal-finance",
+        "norway",
+        "dnb"
+    ],
+    "license": "ISC",
+    "author": "Kasper Haugestøl",
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "test": "vitest run",
-        "test:watch": "vitest"
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
     },
     "files": [
         "dist"
     ],
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "default": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
+    "sideEffects": false,
+    "engines": {
+        "node": ">=18"
     },
-    "license": "ISC",
+    "scripts": {
+        "build": "rm -rf dist && tsc -p tsconfig.build.json",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+    },
     "packageManager": "pnpm@10.30.3",
     "dependencies": {
-        "date-fns": "^4.1.0",
         "papaparse": "^5.5.2"
     },
     "devDependencies": {
+        "@types/papaparse": "^5.3.15",
         "typescript": "^6.0.2",
         "vitest": "^4.1.0"
     }
