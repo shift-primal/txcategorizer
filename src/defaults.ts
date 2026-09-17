@@ -276,7 +276,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"grimaas brygg",
 		"cafe amsterdam",
 	],
-	Gaming: ["steam", "riotgames", "riot", "jagex", "eneba"],
+	Gaming: ["steam", "riotgames", "riot", "jagex", "eneba", "g2a"],
 	Abonnement: [
 		"discord",
 		"apple",
@@ -301,6 +301,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"mova",
 		"prime",
 		"snapchat",
+		"hetzner",
 	],
 	Netthandel: [
 		"cdon",
@@ -315,6 +316,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"posten norge",
 		"sp nox",
 		"ups",
+		"microsoft",
 	],
 	Helse: [
 		"spesialistsenter",
