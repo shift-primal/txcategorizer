@@ -1,6 +1,6 @@
 {
     "name": "txcategorizer",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Parse and categorize Norwegian bank transaction exports (DNB, Valle) into typed, labeled transactions",
     "keywords": [
         "bank",
