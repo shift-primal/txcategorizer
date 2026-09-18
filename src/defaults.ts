@@ -15,6 +15,11 @@ export const defaultCityPrefixes: string[] = [
 	"Moelv",
 	"Heidal",
 	"Oslo",
+	"Trondheim",
+	"Bergen",
+	"Stavanger",
+	"Kristiansand",
+	"Tromsø",
 ];
 
 export const defaultNWordMerchants: Record<string, number> = {
@@ -63,6 +68,8 @@ export const defaultNWordMerchants: Record<string, number> = {
 	Mv: 2,
 	Q: 2,
 	Claire: 2,
+	Airport: 2,
+	Big: 2,
 
 	// 3-word merchants
 	Salt: 3,
@@ -153,12 +160,21 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"godishuset",
 		"plodine",
 		"supermerc",
+		"meny",
 	],
 	"Mat ute": [
 		"nebbenes kro",
 		"ysteri",
 		"burger king",
 		"mcdonald's",
+		"peppes",
+		"egon",
+		"kebabhuset",
+		"baker",
+		"sabrura",
+		"cafe downtown",
+		"big horn",
+		"big bite",
 		"little eat",
 		"fly chicken",
 		"expressenpizza",
@@ -243,6 +259,9 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"frøken strøken",
 		"byggmax",
 		"vida xl",
+		"jernia",
+		"expert",
+		"sørlandssenteret",
 	],
 	Underholdning: [
 		"norsk tipping",
@@ -275,6 +294,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"wrightegaarden",
 		"grimaas brygg",
 		"cafe amsterdam",
+		"dickens",
 	],
 	Gaming: ["steam", "riotgames", "riot", "jagex", "eneba", "g2a"],
 	Abonnement: [
@@ -446,6 +466,7 @@ export const defaultCategoryKeywords: Record<Category, string[]> = {
 		"duty-free",
 		"stadio",
 		"real-debrid",
+		"airport shop",
 	],
 	Annet: [],
 };
